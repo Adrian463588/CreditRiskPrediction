@@ -1,0 +1,5 @@
+# Place your Grafana alerting screenshots in this folder.
+# Target names:
+# - 1.rules_<metric>.png
+# - 2.notifikasi_<metric>.png
+# - etc.

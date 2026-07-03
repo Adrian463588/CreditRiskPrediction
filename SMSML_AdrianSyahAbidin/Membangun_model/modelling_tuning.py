@@ -148,6 +148,8 @@ def plot_feature_importance(model, feature_names, save_path: str, top_n: int = 2
 
 def train() -> None:
     """Menjalankan hyperparameter tuning + logging manual ke DagsHub MLflow."""
+    if "DAGSHUB_TOKEN" in os.environ and "DAGSHUB_USER_TOKEN" not in os.environ:
+        os.environ["DAGSHUB_USER_TOKEN"] = os.environ["DAGSHUB_TOKEN"]
 
     # Init DagsHub → Set MLflow Tracking URI ke DagsHub server
     dagshub.init(

@@ -114,6 +114,8 @@ def plot_feature_importance(model, features, path: str, top_n: int = 15) -> None
 
 def train(args: argparse.Namespace) -> None:
     """Menjalankan training dan logging ke DagsHub MLflow."""
+    if "DAGSHUB_TOKEN" in os.environ and "DAGSHUB_USER_TOKEN" not in os.environ:
+        os.environ["DAGSHUB_USER_TOKEN"] = os.environ["DAGSHUB_TOKEN"]
     dagshub.init(repo_owner=DAGSHUB_OWNER, repo_name=DAGSHUB_REPO, mlflow=True)
     mlflow.set_experiment(EXPERIMENT_NAME)
 

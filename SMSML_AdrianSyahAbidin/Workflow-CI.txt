@@ -1,0 +1,32 @@
+Workflow-CI Repository:
+https://github.com/Adrian463588/CreditRiskPrediction
+
+(Repository berisi folder Workflow-CI/)
+
+Struktur:
+Workflow-CI/
+├── .github/workflows/ci_pipeline.yml
+└── MLProject/
+    ├── MLProject
+    ├── conda.yaml
+    ├── modelling.py
+    └── namadataset_preprocessing/
+        ├── credit_risk_train.csv
+        └── credit_risk_test.csv
+
+Pipeline Steps (Advanced):
+1. Checkout repository
+2. Setup Python 3.12
+3. Install dependencies
+4. Generate & preprocess dataset
+5. Run MLflow Project (mlflow run)
+6. Upload artifacts (GitHub Actions Artifacts)
+7. Build Docker Image (mlflow models build-docker)
+8. Push ke Docker Hub: adriansyah/credit-risk-model:latest
+
+Docker Hub Image:
+docker pull adriansyah/credit-risk-model:latest
+
+Catatan:
+- Secrets yang diperlukan: DAGSHUB_TOKEN, DAGSHUB_USERNAME, DOCKERHUB_USERNAME, DOCKERHUB_TOKEN
+- Pipeline berjalan otomatis pada push ke branch main pada path Workflow-CI/**

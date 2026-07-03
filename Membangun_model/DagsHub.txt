@@ -1,0 +1,12 @@
+DagsHub MLflow Tracking URL:
+https://dagshub.com/Adrian463588/CreditRiskPrediction.mlflow
+
+Repository:
+https://dagshub.com/Adrian463588/CreditRiskPrediction
+
+Experiment Name: credit-risk-hyperparameter-tuning
+
+Catatan:
+- Tracking diinisialisasi melalui dagshub.init() di modelling_tuning.py
+- Artefak tersimpan: roc_auc_curve.png, feature_importance.png
+- Model terdaftar: CreditRiskRandomForest

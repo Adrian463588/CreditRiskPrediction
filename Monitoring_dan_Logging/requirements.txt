@@ -1,0 +1,26 @@
+# Monitoring & Logging Requirements
+# Python 3.12.7
+
+# Serving
+fastapi==0.115.5
+uvicorn[standard]==0.32.1
+
+# Prometheus
+prometheus-client==0.21.0
+
+# Data & ML
+numpy==1.26.4
+pandas==2.2.3
+scikit-learn==1.5.2
+
+# MLflow
+mlflow==2.19.0
+
+# System monitoring
+psutil==6.1.0
+
+# HTTP client (for inference script)
+requests==2.32.3
+
+# Pydantic
+pydantic==2.10.3

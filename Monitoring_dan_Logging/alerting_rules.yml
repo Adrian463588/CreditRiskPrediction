@@ -1,0 +1,49 @@
+groups:
+  - name: credit_risk_business_alerts
+    rules:
+      # Alert 1 (Business): Approval rate turun di bawah 10%
+      - alert: LoanApprovalRateCriticallyLow
+        expr: loan_approval_rate < 0.10
+        for: 1m
+        labels:
+          severity: critical
+          category: business
+        annotations:
+          summary: "⚠️ Loan Approval Rate Sangat Rendah"
+          description: >
+            Tingkat persetujuan kredit turun ke {{ $value | humanizePercentage }},
+            di bawah ambang batas 10%. Ini mengindikasikan kemungkinan masalah
+            pada input fitur, model drift, atau data anomali.
+          runbook: "Periksa distribusi input fitur dan performa model terbaru."
+
+  - name: credit_risk_system_alerts
+    rules:
+      # Alert 2 (System): API latency terlalu tinggi (> 2 detik)
+      - alert: APILatencyHigh
+        expr: histogram_quantile(0.95, rate(api_latency_seconds_bucket[5m])) > 2.0
+        for: 2m
+        labels:
+          severity: warning
+          category: system
+        annotations:
+          summary: "🐌 API Latency Tinggi (P95 > 2 detik)"
+          description: >
+            Persentil ke-95 latensi API prediksi adalah {{ $value | humanizeDuration }}.
+            Ini dapat mempengaruhi pengalaman pengguna dan SLA sistem.
+          runbook: "Periksa penggunaan CPU/memory, optimasi model serving."
+
+      # Alert 3 (System/Data): Error request rate melonjak tajam (> 5%)
+      - alert: HighErrorRate
+        expr: >
+          rate(http_error_total[5m]) /
+          (rate(api_request_total[5m]) + 0.001) > 0.05
+        for: 2m
+        labels:
+          severity: critical
+          category: system
+        annotations:
+          summary: "🔴 HTTP Error Rate Tinggi (> 5%)"
+          description: >
+            Tingkat error HTTP saat ini adalah {{ $value | humanizePercentage }}.
+            Ini mengindikasikan masalah serius pada infrastruktur serving atau validasi input.
+          runbook: "Periksa log error API, validasi format request, dan konektivitas model."

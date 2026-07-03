@@ -1,0 +1,68 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+*.whl
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Virtual Environment
+.venv/
+venv/
+env/
+ENV/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# MLflow
+mlruns/
+mlartifacts/
+
+# Data files (raw & large)
+*.csv
+*.parquet
+*.pkl
+*.h5
+
+# Exceptions: keep preprocessed datasets needed for CI
+!Eksperimen_SML_AdrianSyahAbidin/preprocessing/namadataset_preprocessing/*.csv
+!Workflow-CI/MLProject/namadataset_preprocessing/*.csv
+!Membangun_model/namadataset_preprocessing/*.csv
+
+# Environment variables & secrets
+.env
+.env.local
+*.pem
+*.key
+secrets/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs
+*.log
+logs/
+
+# Docker
+*.tar.gz
+
+# Screenshots (tracked when added manually)
+# *.jpg
+# *.png

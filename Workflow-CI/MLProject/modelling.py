@@ -166,6 +166,14 @@ def train(args: argparse.Namespace) -> None:
         # ── Model ──
         mlflow.sklearn.log_model(model, artifact_path="credit-risk-model")
 
+        # Save model locally for Docker build reliability
+        import shutil
+        local_model_path = "artifacts/credit-risk-model"
+        if os.path.exists(local_model_path):
+            shutil.rmtree(local_model_path)
+        mlflow.sklearn.save_model(model, local_model_path)
+        logger.info("✅ Model disimpan secara lokal di: %s", local_model_path)
+
         logger.info("✅ Run selesai | ID: %s", run.info.run_id)
 
 

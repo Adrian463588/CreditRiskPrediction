@@ -110,7 +110,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: "credit-risk-model-artifacts-${{ github.run_number }}"
-          path: Workflow-CI/MLProject/
+          path: ./
 
       - name: "Generate Fresh Model for Docker (if no prior artifacts)"
         env:
@@ -140,16 +140,8 @@ jobs:
 
       - name: "Build Docker Image via MLflow"
         run: |
-          # Cari model run ID terbaru dari mlruns
-          MODEL_PATH=$(find Workflow-CI/MLProject/mlruns -name "MLmodel" | head -1 | xargs dirname)
-          if [ -z "$MODEL_PATH" ]; then
-            echo "Error: Model artifact tidak ditemukan"
-            exit 1
-          fi
-          echo "Model path: $MODEL_PATH"
-
           mlflow models build-docker \
-            --model-uri "$MODEL_PATH" \
+            --model-uri "Workflow-CI/MLProject/artifacts/credit-risk-model" \
             --name "${{ env.DOCKER_IMAGE_NAME }}"
 
       - name: "Tag & Push Docker Image"

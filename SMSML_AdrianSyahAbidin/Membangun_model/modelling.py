@@ -86,6 +86,8 @@ def train() -> None:
     with mlflow.start_run(run_name="random-forest-basic"):
         model = RandomForestClassifier(
             n_estimators=100,
+            max_depth=12,
+            min_samples_leaf=4,
             random_state=42,
             n_jobs=-1,
         )

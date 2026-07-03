@@ -47,9 +47,9 @@ def parse_args() -> argparse.Namespace:
     """Parse command-line arguments dari MLflow Project runner."""
     parser = argparse.ArgumentParser(description="Credit Risk MLProject Training")
     parser.add_argument("--n-estimators",      type=int,   default=200)
-    parser.add_argument("--max-depth",         type=int,   default=20)
-    parser.add_argument("--min-samples-split", type=int,   default=5)
-    parser.add_argument("--min-samples-leaf",  type=int,   default=2)
+    parser.add_argument("--max-depth",         type=int,   default=12)
+    parser.add_argument("--min-samples-split", type=int,   default=10)
+    parser.add_argument("--min-samples-leaf",  type=int,   default=4)
     parser.add_argument("--max-features",      type=str,   default="sqrt")
     parser.add_argument("--data-dir",          type=str,   default="credit_risk_preprocessing")
     return parser.parse_args()

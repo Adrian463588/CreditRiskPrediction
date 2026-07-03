@@ -12,7 +12,7 @@ on:
         default: "200"
       max_depth:
         description: "Max tree depth"
-        default: "20"
+        default: "12"
 
 env:
   DOCKER_IMAGE_NAME: credit-risk-model

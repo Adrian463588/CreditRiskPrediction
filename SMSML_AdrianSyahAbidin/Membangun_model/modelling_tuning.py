@@ -53,14 +53,13 @@ TEST_FILE       = os.path.join(DATA_DIR, "credit_risk_test.csv")
 TARGET_COL      = "loan_status"
 ARTIFACT_DIR    = "artifacts"
 
-# Hyperparameter search space
+# Hyperparameter search space dengan regulasi ketat (mencegah overfitting)
 PARAM_DIST = {
-    "n_estimators":       [100, 200, 300, 500],
-    "max_depth":          [None, 10, 20, 30, 40],
-    "min_samples_split":  [2, 5, 10],
-    "min_samples_leaf":   [1, 2, 4],
-    "max_features":       ["sqrt", "log2", None],
-    "class_weight":       ["balanced", None],
+    "n_estimators":       [100, 200, 300],
+    "max_depth":          [8, 12, 16],
+    "min_samples_split":  [5, 10],
+    "min_samples_leaf":   [2, 4, 6],
+    "max_features":       ["sqrt", "log2"],
 }
 
 

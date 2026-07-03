@@ -51,7 +51,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--min-samples-split", type=int,   default=5)
     parser.add_argument("--min-samples-leaf",  type=int,   default=2)
     parser.add_argument("--max-features",      type=str,   default="sqrt")
-    parser.add_argument("--data-dir",          type=str,   default="namadataset_preprocessing")
+    parser.add_argument("--data-dir",          type=str,   default="credit_risk_preprocessing")
     return parser.parse_args()
 
 

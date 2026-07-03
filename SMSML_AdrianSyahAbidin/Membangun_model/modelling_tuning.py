@@ -12,7 +12,7 @@ Penggunaan:
 
 Prasyarat:
     - Set environment variables DAGSHUB_TOKEN, atau login via CLI.
-    - Dataset tersedia di namadataset_preprocessing/.
+    - Dataset tersedia di credit_risk_preprocessing/.
 """
 
 import logging
@@ -47,7 +47,7 @@ logger = logging.getLogger(__name__)
 DAGSHUB_OWNER  = "Adrian463588"
 DAGSHUB_REPO   = "CreditRiskPrediction"
 EXPERIMENT_NAME = "credit-risk-hyperparameter-tuning"
-DATA_DIR        = "namadataset_preprocessing"
+DATA_DIR        = "credit_risk_preprocessing"
 TRAIN_FILE      = os.path.join(DATA_DIR, "credit_risk_train.csv")
 TEST_FILE       = os.path.join(DATA_DIR, "credit_risk_test.csv")
 TARGET_COL      = "loan_status"

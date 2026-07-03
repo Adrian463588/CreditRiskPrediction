@@ -9,7 +9,7 @@ entry_points:
       min_samples_split: {type: int, default: 5}
       min_samples_leaf:  {type: int, default: 2}
       max_features:    {type: string, default: "sqrt"}
-      data_dir:        {type: string, default: "namadataset_preprocessing"}
+      data_dir:        {type: string, default: "credit_risk_preprocessing"}
     command: >
       python modelling.py
       --n-estimators {n_estimators}

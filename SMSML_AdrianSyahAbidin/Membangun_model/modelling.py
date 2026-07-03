@@ -35,7 +35,7 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # ─── Konfigurasi ─────────────────────────────────────────────────────────────
-DATA_DIR    = "namadataset_preprocessing"
+DATA_DIR    = "credit_risk_preprocessing"
 TRAIN_FILE  = os.path.join(DATA_DIR, "credit_risk_train.csv")
 TEST_FILE   = os.path.join(DATA_DIR, "credit_risk_test.csv")
 TARGET_COL  = "loan_status"

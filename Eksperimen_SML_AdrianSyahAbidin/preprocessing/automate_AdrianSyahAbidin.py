@@ -9,8 +9,8 @@ Penggunaan:
 
 Contoh:
     python automate_AdrianSyahAbidin.py \
-        --input ../namadataset_raw/credit_risk_dataset.csv \
-        --output-dir namadataset_preprocessing
+        --input ../credit_risk_raw/credit_risk_dataset.csv \
+        --output-dir credit_risk_preprocessing
 """
 
 import argparse
@@ -210,13 +210,13 @@ def _parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--input",
         type=str,
-        default=os.path.join("..", "namadataset_raw", "credit_risk_dataset.csv"),
+        default=os.path.join("..", "credit_risk_raw", "credit_risk_dataset.csv"),
         help="Path ke file CSV raw dataset.",
     )
     parser.add_argument(
         "--output-dir",
         type=str,
-        default="namadataset_preprocessing",
+        default="credit_risk_preprocessing",
         help="Direktori output untuk menyimpan dataset yang sudah diproses.",
     )
     return parser.parse_args()

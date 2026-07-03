@@ -10,7 +10,7 @@ Workflow-CI/
     ├── MLProject
     ├── conda.yaml
     ├── modelling.py
-    └── namadataset_preprocessing/
+    └── credit_risk_preprocessing/
         ├── credit_risk_train.csv
         └── credit_risk_test.csv
 

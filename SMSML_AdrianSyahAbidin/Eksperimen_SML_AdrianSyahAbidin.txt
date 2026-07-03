@@ -6,12 +6,12 @@ https://github.com/Adrian463588/CreditRiskPrediction
 Struktur:
 Eksperimen_SML_AdrianSyahAbidin/
 ├── .github/workflows/preprocessing_ci.yml
-├── namadataset_raw/
+├── credit_risk_raw/
 │   └── generate_dataset.py
 └── preprocessing/
     ├── Eksperimen_AdrianSyahAbidin.ipynb
     ├── automate_AdrianSyahAbidin.py
-    └── namadataset_preprocessing/
+    └── credit_risk_preprocessing/
         ├── credit_risk_train.csv
         └── credit_risk_test.csv
 

@@ -24,16 +24,16 @@ Sistem MLOps end-to-end untuk memprediksi apakah seorang nasabah akan **gagal ba
 CreditRiskPrediction/
 ├── Eksperimen_SML_AdrianSyahAbidin/      # Kriteria 1: Data Preprocessing
 │   ├── .github/workflows/               # GitHub Actions CI Preprocessing
-│   ├── namadataset_raw/                 # Raw dataset (credit_risk_dataset.csv)
+│   ├── credit_risk_raw/                 # Raw dataset (credit_risk_dataset.csv)
 │   └── preprocessing/
 │       ├── Eksperimen_AdrianSyahAbidin.ipynb  # Notebook Colab (EDA + Preprocessing)
 │       ├── automate_AdrianSyahAbidin.py       # Automated preprocessing script
-│       └── namadataset_preprocessing/         # Output: preprocessed data
+│       └── credit_risk_preprocessing/         # Output: preprocessed data
 │
 ├── Membangun_model/                      # Kriteria 2: Model Training
 │   ├── modelling.py                     # Basic MLflow autolog
 │   ├── modelling_tuning.py              # DagsHub + Hyperparameter tuning + manual log
-│   ├── namadataset_preprocessing/       # Input: preprocessed data
+│   ├── credit_risk_preprocessing/       # Input: preprocessed data
 │   └── requirements.txt
 │
 ├── Workflow-CI/                          # Kriteria 3: CI Pipeline
@@ -42,7 +42,7 @@ CreditRiskPrediction/
 │       ├── MLProject                    # MLflow Project definition
 │       ├── conda.yaml                   # Conda environment
 │       ├── modelling.py                 # Training entry point
-│       └── namadataset_preprocessing/
+│       └── credit_risk_preprocessing/
 │
 ├── Monitoring_dan_Logging/               # Kriteria 4: Serving & Monitoring
 │   ├── 2.prometheus.yml

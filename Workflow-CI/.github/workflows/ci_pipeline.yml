@@ -48,14 +48,14 @@ jobs:
       - name: "Generate Preprocessed Dataset"
         run: |
           cd Eksperimen_SML_AdrianSyahAbidin
-          python namadataset_raw/generate_dataset.py \
-            --output namadataset_raw/credit_risk_dataset.csv
+          python credit_risk_raw/generate_dataset.py \
+            --output credit_risk_raw/credit_risk_dataset.csv
           python preprocessing/automate_AdrianSyahAbidin.py \
-            --input namadataset_raw/credit_risk_dataset.csv \
-            --output-dir preprocessing/namadataset_preprocessing
+            --input credit_risk_raw/credit_risk_dataset.csv \
+            --output-dir preprocessing/credit_risk_preprocessing
           # Salin ke MLProject
-          cp -r preprocessing/namadataset_preprocessing \
-                ../Workflow-CI/MLProject/namadataset_preprocessing
+          cp -r preprocessing/credit_risk_preprocessing \
+                ../Workflow-CI/MLProject/credit_risk_preprocessing
 
       - name: "Run MLflow Project"
         env:
@@ -119,13 +119,13 @@ jobs:
           MLFLOW_TRACKING_URI: "https://dagshub.com/Adrian463588/CreditRiskPrediction.mlflow"
         run: |
           cd Eksperimen_SML_AdrianSyahAbidin
-          python namadataset_raw/generate_dataset.py \
-            --output namadataset_raw/credit_risk_dataset.csv
+          python credit_risk_raw/generate_dataset.py \
+            --output credit_risk_raw/credit_risk_dataset.csv
           python preprocessing/automate_AdrianSyahAbidin.py \
-            --input namadataset_raw/credit_risk_dataset.csv \
-            --output-dir preprocessing/namadataset_preprocessing
-          cp -r preprocessing/namadataset_preprocessing \
-                ../Workflow-CI/MLProject/namadataset_preprocessing
+            --input credit_risk_raw/credit_risk_dataset.csv \
+            --output-dir preprocessing/credit_risk_preprocessing
+          cp -r preprocessing/credit_risk_preprocessing \
+                ../Workflow-CI/MLProject/credit_risk_preprocessing
 
           cd ../Workflow-CI/MLProject
           python modelling.py

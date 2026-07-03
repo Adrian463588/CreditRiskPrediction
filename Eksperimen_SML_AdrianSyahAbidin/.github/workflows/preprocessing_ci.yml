@@ -33,16 +33,16 @@ jobs:
 
       - name: "Generate Raw Dataset"
         run: |
-          python namadataset_raw/generate_dataset.py \
-            --output namadataset_raw/credit_risk_dataset.csv \
+          python credit_risk_raw/generate_dataset.py \
+            --output credit_risk_raw/credit_risk_dataset.csv \
             --n-samples 32581
           echo "✅ Raw dataset generated successfully"
 
       - name: "Run Preprocessing Automation"
         run: |
           python preprocessing/automate_AdrianSyahAbidin.py \
-            --input namadataset_raw/credit_risk_dataset.csv \
-            --output-dir preprocessing/namadataset_preprocessing
+            --input credit_risk_raw/credit_risk_dataset.csv \
+            --output-dir preprocessing/credit_risk_preprocessing
           echo "✅ Preprocessing complete"
 
       - name: "Validate Output Files"
@@ -51,7 +51,7 @@ jobs:
           import os
           import pandas as pd
 
-          output_dir = "preprocessing/namadataset_preprocessing"
+          output_dir = "preprocessing/credit_risk_preprocessing"
           expected_files = ["credit_risk_train.csv", "credit_risk_test.csv"]
 
           for fname in expected_files:
@@ -70,14 +70,14 @@ jobs:
         with:
           name: "credit-risk-preprocessed-${{ github.run_number }}"
           path: |
-            Eksperimen_SML_AdrianSyahAbidin/preprocessing/namadataset_preprocessing/
+            Eksperimen_SML_AdrianSyahAbidin/preprocessing/credit_risk_preprocessing/
           retention-days: 30
 
       - name: "Commit Preprocessed Data (if changed)"
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Actions"
-          git add preprocessing/namadataset_preprocessing/ || true
+          git add preprocessing/credit_risk_preprocessing/ || true
           git diff --cached --quiet || git commit -m "ci: update preprocessed credit risk dataset [skip ci]"
           git push || echo "Nothing to push"
         env:

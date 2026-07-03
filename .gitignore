@@ -216,3 +216,19 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# MLflow
+mlruns/
+mlartifacts/
+
+# Data files (raw & large)
+*.csv
+*.parquet
+*.pkl
+*.h5
+
+# Exceptions: keep preprocessed datasets needed for CI
+!Eksperimen_SML_AdrianSyahAbidin/preprocessing/credit_risk_preprocessing/*.csv
+!Workflow-CI/MLProject/credit_risk_preprocessing/*.csv
+!Membangun_model/credit_risk_preprocessing/*.csv
+

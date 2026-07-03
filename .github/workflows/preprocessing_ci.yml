@@ -3,8 +3,8 @@ name: "Preprocessing CI - Credit Risk Dataset"
 on:
   push:
     branches: [main]
-    paths:
-      - "Eksperimen_SML_AdrianSyahAbidin/**"
+  schedule:
+    - cron: "0 16 * * *"
   workflow_dispatch:
 
 jobs:

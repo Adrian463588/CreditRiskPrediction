@@ -3,8 +3,8 @@ name: "Workflow CI - Credit Risk Model Training & Docker Build"
 on:
   push:
     branches: [main]
-    paths:
-      - "Workflow-CI/**"
+  schedule:
+    - cron: "0 16 * * *"
   workflow_dispatch:
     inputs:
       n_estimators:

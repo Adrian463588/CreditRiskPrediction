@@ -1,0 +1,84 @@
+name: "Preprocessing CI - Credit Risk Dataset"
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "Eksperimen_SML_AdrianSyahAbidin/**"
+  workflow_dispatch:
+
+jobs:
+  preprocess:
+    name: "Run Data Preprocessing Pipeline"
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: Eksperimen_SML_AdrianSyahAbidin
+
+    steps:
+      - name: "Checkout Repository"
+        uses: actions/checkout@v4
+
+      - name: "Setup Python 3.12"
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: "Install Dependencies"
+        run: |
+          pip install --upgrade pip
+          pip install numpy pandas scikit-learn
+
+      - name: "Generate Raw Dataset"
+        run: |
+          python credit_risk_raw/generate_dataset.py \
+            --output credit_risk_raw/credit_risk_dataset.csv \
+            --n-samples 32581
+          echo "✅ Raw dataset generated successfully"
+
+      - name: "Run Preprocessing Automation"
+        run: |
+          python preprocessing/automate_AdrianSyahAbidin.py \
+            --input credit_risk_raw/credit_risk_dataset.csv \
+            --output-dir preprocessing/credit_risk_preprocessing
+          echo "✅ Preprocessing complete"
+
+      - name: "Validate Output Files"
+        run: |
+          python - <<'EOF'
+          import os
+          import pandas as pd
+
+          output_dir = "preprocessing/credit_risk_preprocessing"
+          expected_files = ["credit_risk_train.csv", "credit_risk_test.csv"]
+
+          for fname in expected_files:
+              fpath = os.path.join(output_dir, fname)
+              assert os.path.exists(fpath), f"FAIL: {fpath} tidak ditemukan"
+              df = pd.read_csv(fpath)
+              assert len(df) > 0, f"FAIL: {fpath} kosong"
+              assert "loan_status" in df.columns, f"FAIL: kolom target tidak ada di {fpath}"
+              print(f"✅ {fname}: {df.shape[0]:,} baris, {df.shape[1]} kolom")
+
+          print("✅ Semua file output valid!")
+          EOF
+
+      - name: "Upload Preprocessed Dataset as Artifact"
+        uses: actions/upload-artifact@v4
+        with:
+          name: "credit-risk-preprocessed-${{ github.run_number }}"
+          path: |
+            Eksperimen_SML_AdrianSyahAbidin/preprocessing/credit_risk_preprocessing/
+          retention-days: 30
+
+      - name: "Commit Preprocessed Data (if changed)"
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Actions"
+          git add preprocessing/credit_risk_preprocessing/ || true
+          git diff --cached --quiet || git commit -m "ci: update preprocessed credit risk dataset [skip ci]"
+          git push || echo "Nothing to push"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

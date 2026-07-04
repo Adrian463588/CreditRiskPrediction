@@ -125,9 +125,8 @@ app = FastAPI(
 
 # ─── State Internal ───────────────────────────────────────────────────────────
 _state = {
-    "total_predictions": 0,
-    "total_approvals":   0,
-    "total_prob_sum":    0.0,
+    "predictions_history": [],  # List of booleans (True = approved, False = default)
+    "confidence_history": [],   # List of floats (confidence scores)
     "baseline_income":   50000.0,  # Digunakan untuk kalkulasi drift
 }
 
@@ -145,7 +144,9 @@ class MockCreditRiskModel:
     def predict(self, features: np.ndarray) -> np.ndarray:
         """Simulasi prediksi berdasarkan fitur input."""
         income_ratio  = features[:, 0] / (features[:, 2] + 1)  # income / loan_amnt
-        default_prob  = np.clip(0.15 + 0.3 * (1 - income_ratio.clip(0, 1)), 0.05, 0.95)
+        # Normal (ratio >= 0.5) -> probabilitas default rendah (0.1) -> disetujui (pred=0)
+        # Krisis (ratio < 0.5) -> probabilitas default tinggi (0.9) -> ditolak (pred=1)
+        default_prob  = np.where(income_ratio < 0.5, 0.9, 0.1)
         return (default_prob > 0.5).astype(int), default_prob
 
 model = MockCreditRiskModel()
@@ -239,15 +240,19 @@ def predict_loan_default(application: LoanApplication) -> PredictionResponse:
         confidence   = float(probability[0])
         is_default   = pred_label == 1
 
-        # Update internal state
-        _state["total_predictions"] += 1
-        _state["total_prob_sum"]    += confidence
-        if not is_default:
-            _state["total_approvals"] += 1
+        # Update internal state with sliding window of last 50 predictions
+        is_approved = (pred_label == 0)
+        _state["predictions_history"].append(is_approved)
+        _state["confidence_history"].append(confidence)
+
+        if len(_state["predictions_history"]) > 50:
+            _state["predictions_history"].pop(0)
+            _state["confidence_history"].pop(0)
 
         # Update Prometheus Metrics
-        approval_rate = _state["total_approvals"] / _state["total_predictions"]
-        avg_confidence = _state["total_prob_sum"] / _state["total_predictions"]
+        n_items = len(_state["predictions_history"])
+        approval_rate = sum(_state["predictions_history"]) / n_items if n_items > 0 else 1.0
+        avg_confidence = sum(_state["confidence_history"]) / n_items if n_items > 0 else 0.5
 
         LOAN_APPROVAL_RATE.set(approval_rate)
         MODEL_CONFIDENCE_SCORE.set(avg_confidence)
@@ -292,4 +297,4 @@ if __name__ == "__main__":
     logger.info("🚀 Starting Credit Risk Prediction API on port %d", PORT)
     logger.info("   Metrics : http://localhost:%d/metrics", PORT)
     logger.info("   API Docs: http://localhost:%d/docs", PORT)
-    uvicorn.run("3.prometheus_exporter:app", host="0.0.0.0", port=PORT, reload=False)
+    uvicorn.run(app, host="0.0.0.0", port=PORT, reload=False)

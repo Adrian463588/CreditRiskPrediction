@@ -4,7 +4,7 @@ groups:
       # Alert 1 (Business): Approval rate turun di bawah 10%
       - alert: LoanApprovalRateCriticallyLow
         expr: loan_approval_rate < 0.10
-        for: 1m
+        for: 0s
         labels:
           severity: critical
           category: business
@@ -21,7 +21,7 @@ groups:
       # Alert 2 (System): API latency terlalu tinggi (> 2 detik)
       - alert: APILatencyHigh
         expr: histogram_quantile(0.95, rate(api_latency_seconds_bucket[5m])) > 2.0
-        for: 2m
+        for: 0s
         labels:
           severity: warning
           category: system
@@ -37,7 +37,7 @@ groups:
         expr: >
           rate(http_error_total[5m]) /
           (rate(api_request_total[5m]) + 0.001) > 0.05
-        for: 2m
+        for: 0s
         labels:
           severity: critical
           category: system

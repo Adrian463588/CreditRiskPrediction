@@ -3,7 +3,10 @@ modelling_tuning.py
 ===================
 Pelatihan model Credit Risk Prediction tingkat Advanced:
 - Hyperparameter Tuning (RandomizedSearchCV)
-- Manual logging MLflow (metrics, params, artifacts)
+- mlflow.sklearn.autolog() untuk log model folder otomatis (MLmodel, conda.yaml,
+  model.pkl, requirements.txt, estimator.html, metric_info.json,
+  training_confusion_matrix.png)
+- Logging tambahan manual: metrics, params, artefak visual kustom
 - Tracking tersimpan ke DagsHub
 - Artefak visual: ROC-AUC Curve + Feature Importance Plot
 
@@ -167,6 +170,17 @@ def train() -> None:
     logger.info("Memulai Hyperparameter Tuning (RandomizedSearchCV)...")
 
     with mlflow.start_run(run_name="rf-hyperparameter-tuning") as run:
+        # ── Autolog: Aktifkan SEBELUM fit() agar folder model/ terbuat otomatis ──
+        # Ini akan menghasilkan: model/MLmodel, model/conda.yaml, model/model.pkl,
+        # model/requirements.txt, estimator.html, metric_info.json,
+        # training_confusion_matrix.png
+        mlflow.sklearn.autolog(
+            log_models=True,
+            log_datasets=False,
+            log_input_examples=False,
+            log_model_signatures=True,
+        )
+
         # ── Hyperparameter Tuning ──
         base_model = RandomForestClassifier(random_state=42, n_jobs=-1)
         search = RandomizedSearchCV(
@@ -219,15 +233,15 @@ def train() -> None:
         plot_feature_importance(search, feature_names, fi_path)
         mlflow.log_artifact(fi_path, artifact_path="plots")
 
-        # ── Log Model ──
-        mlflow.sklearn.log_model(
-            search.best_estimator_,
-            artifact_path="credit-risk-model",
-            registered_model_name="CreditRiskRandomForest",
-        )
+        # ── Log Model (ditangani oleh autolog secara otomatis) ──
+        # autolog sudah menyimpan model ke folder 'model/' beserta
+        # MLmodel, conda.yaml, model.pkl, requirements.txt, estimator.html,
+        # metric_info.json, dan training_confusion_matrix.png.
+        # Tidak perlu manual log_model lagi untuk menghindari duplikasi.
 
         logger.info("✅ Training selesai | Run ID: %s", run.info.run_id)
         logger.info("   Buka DagsHub MLflow UI untuk melihat hasil tracking.")
+        logger.info("   Artifacts folder 'model/' dibuat otomatis oleh autolog.")
 
 
 if __name__ == "__main__":

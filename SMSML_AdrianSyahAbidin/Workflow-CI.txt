@@ -1,5 +1,5 @@
 Workflow-CI Repository (Kriteria 3 - Advanced):
-https://github.com/Adrian463588/Workflow-CI
+https://github.com/Adrian463588/Workflow-CI_SMSL
 
 Struktur Repository:
 Workflow-CI/

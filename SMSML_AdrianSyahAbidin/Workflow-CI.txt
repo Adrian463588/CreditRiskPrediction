@@ -1,32 +1,28 @@
-Workflow-CI Repository:
-https://github.com/Adrian463588/CreditRiskPrediction
+Workflow-CI Repository (Kriteria 3 - Advanced):
+https://github.com/Adrian463588/Workflow-CI
 
-(Repository berisi folder Workflow-CI/)
-
-Struktur:
+Struktur Repository:
 Workflow-CI/
-├── .github/workflows/ci_pipeline.yml
+├── .github/
+│   └── workflows/
+│       └── ci_pipeline.yml        ← GitHub Actions CI (2 jobs: train + docker build)
 └── MLProject/
-    ├── MLProject
-    ├── conda.yaml
-    ├── modelling.py
+    ├── MLProject                  ← MLflow Project manifest (entrypoint config)
+    ├── conda.yaml                 ← Conda environment (reproducible dependencies)
+    ├── Dockerfile                 ← Custom multi-stage Dockerfile (python:3.10-slim)
+    ├── modelling.py               ← Training script entry point
+    ├── docker_hub_reference.txt   ← Tautan Docker Hub image
     └── credit_risk_preprocessing/
-        ├── credit_risk_train.csv
-        └── credit_risk_test.csv
-
-Pipeline Steps (Advanced):
-1. Checkout repository
-2. Setup Python 3.12
-3. Install dependencies
-4. Generate & preprocess dataset
-5. Run MLflow Project (mlflow run)
-6. Upload artifacts (GitHub Actions Artifacts)
-7. Build Docker Image (mlflow models build-docker)
-8. Push ke Docker Hub: adriansyah/credit-risk-model:latest
+        ├── credit_risk_train.csv  ← Dataset bersih untuk training
+        └── credit_risk_test.csv   ← Dataset bersih untuk evaluasi
 
 Docker Hub Image:
-docker pull adriansyah/credit-risk-model:latest
+https://hub.docker.com/repository/docker/adrian090402/credit-risk-model/general
+
+Pull Command:
+docker pull adrian090402/credit-risk-model:latest
 
 Catatan:
-- Secrets yang diperlukan: DAGSHUB_TOKEN, DAGSHUB_USERNAME, DOCKERHUB_USERNAME, DOCKERHUB_TOKEN
-- Pipeline berjalan otomatis pada push ke branch main pada path Workflow-CI/**
+- CI Pipeline terpicu: push ke main + cron mingguan (Minggu 23:00 WIB)
+- DevSecOps: semua credential via GitHub Secrets (tidak ada hardcoded values)
+- Optimasi Docker: custom slim image ~500 MB vs default ~3 GB

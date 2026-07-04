@@ -1,21 +1,22 @@
-Eksperimen_SML_AdrianSyahAbidin Repository:
-https://github.com/Adrian463588/CreditRiskPrediction
+Eksperimen_SML_AdrianSyahAbidin Repository (Kriteria 1 - Advanced):
+https://github.com/Adrian463588/Eksperimen_SML_AdrianSyahAbidin
 
-(Repository berisi folder Eksperimen_SML_AdrianSyahAbidin/)
-
-Struktur:
+Struktur Repository:
 Eksperimen_SML_AdrianSyahAbidin/
-├── .github/workflows/preprocessing_ci.yml
+├── .github/
+│   └── workflows/
+│       └── preprocessing_ci.yml   ← GitHub Actions CI (cron + push trigger)
 ├── credit_risk_raw/
-│   └── generate_dataset.py
+│   ├── credit_risk_dataset.csv    ← Dataset mentah nasabah (32.581 baris)
+│   └── generate_dataset.py        ← Skrip generate dataset sintetis
 └── preprocessing/
-    ├── Eksperimen_AdrianSyahAbidin.ipynb
-    ├── automate_AdrianSyahAbidin.py
+    ├── Eksperimen_AdrianSyahAbidin.ipynb  ← Notebook Colab (EDA + Preprocessing)
+    ├── automate_AdrianSyahAbidin.py       ← Skrip preprocessing otomatis (DRY)
     └── credit_risk_preprocessing/
-        ├── credit_risk_train.csv
-        └── credit_risk_test.csv
+        ├── credit_risk_train.csv          ← Dataset bersih siap latih
+        └── credit_risk_test.csv           ← Dataset bersih siap evaluasi
 
 Catatan:
-- Notebook dijalankan di Google Colab
 - Dataset: Credit Risk Dataset (Kaggle: laotse/credit-risk-dataset)
-- CI telah berjalan setidaknya 1 kali (lihat tab Actions di repository)
+- Notebook dijalankan di Google Colab (full output tersimpan)
+- CI telah berjalan setidaknya 1 kali tanpa error (lihat tab Actions)

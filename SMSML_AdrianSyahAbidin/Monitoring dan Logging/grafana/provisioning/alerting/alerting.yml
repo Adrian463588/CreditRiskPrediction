@@ -8,7 +8,7 @@ contactPoints:
       - uid: discord_webhook_uid
         type: discord
         settings:
-          url: https://discord.com/api/webhooks/1522975913820684349/3An_v9_ZJWlhis72CEYfTDK0jMEZW4VKjXEGaAy44v89z-xouQjwZ3O0Oo4ZkrNBNWWK
+          url: ${DISCORD_WEBHOOK_URL}
         disableResolveMessage: false
 
 # ─── Notification Policies ─────────────────────────────────────────────────────

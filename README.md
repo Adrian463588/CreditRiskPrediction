@@ -20,7 +20,9 @@
 ---
 
 ## 🔗 Tautan Penting Proyek
-* **GitHub Repository:** [https://github.com/Adrian463588/CreditRiskPrediction.git](https://github.com/Adrian463588/CreditRiskPrediction.git)
+* **Monorepo (Backup & Docs):** [https://github.com/Adrian463588/CreditRiskPrediction.git](https://github.com/Adrian463588/CreditRiskPrediction.git)
+* **Kriteria 1 Repository (Preprocessing):** [https://github.com/Adrian463588/Eksperimen_SML_AdrianSyahAbidin](https://github.com/Adrian463588/Eksperimen_SML_AdrianSyahAbidin)
+* **Kriteria 3 Repository (CI/CD Pipeline):** [https://github.com/Adrian463588/Workflow-CI_SMSL](https://github.com/Adrian463588/Workflow-CI_SMSL)
 * **DagsHub Workspace:** [https://dagshub.com/Adrian463588/CreditRiskPrediction](https://dagshub.com/Adrian463588/CreditRiskPrediction)
 * **Docker Hub Registry:** [https://hub.docker.com/repository/docker/adrian090402/credit-risk-model/general](https://hub.docker.com/repository/docker/adrian090402/credit-risk-model/general)
 

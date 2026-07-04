@@ -1,33 +1,30 @@
 name: "Workflow CI - Credit Risk Model Training & Docker Build"
 
-# ─── Triggers ─────────────────────────────────────────────────────────────────
-# • Push ke branch main
-# • Jadwal otomatis: setiap hari jam 23:00 WIB (16:00 UTC)
-# • Manual dispatch (bisa override hyperparameter)
+# ─── Triggers ──────────────────────────────────────────────────────────────────
 on:
   push:
     branches: [main]
   schedule:
-    - cron: "0 16 * * 0"   # 23:00 WIB = 16:00 UTC (1 minggu sekali setiap hari Minggu)
+    - cron: "0 16 * * 0"  # Setiap hari Minggu 23:00 WIB = 16:00 UTC
   workflow_dispatch:
     inputs:
       n_estimators:
-        description: "Number of trees"
+        description: "Number of trees in Random Forest"
         default: "200"
       max_depth:
         description: "Max tree depth"
         default: "12"
 
-# ─── Global Env ───────────────────────────────────────────────────────────────
+# ─── Global Environment Variables ──────────────────────────────────────────────
 env:
   DOCKER_IMAGE_NAME: credit-risk-model
-  MLPROJECT_DIR: Workflow-CI/MLProject
-  PYTHON_VERSION: "3.10"   # Pin ke 3.10 agar konsisten dengan Dockerfile
+  MLPROJECT_DIR: MLProject         # Root-relative path (standalone repo)
+  PYTHON_VERSION: "3.10"
 
 jobs:
-  # ══════════════════════════════════════════════════════════════════════════════
-  # JOB 1 ── Train Model via MLflow Project & Upload Artifact
-  # ══════════════════════════════════════════════════════════════════════════════
+  # ════════════════════════════════════════════════════════════════════════════
+  # JOB 1 — Train Model via MLflow Project & Upload Artifact
+  # ════════════════════════════════════════════════════════════════════════════
   train-and-track:
     name: "Train Model via MLflow Project"
     runs-on: ubuntu-latest
@@ -36,11 +33,13 @@ jobs:
       - name: "Checkout Repository"
         uses: actions/checkout@v4
 
+      - name: "Run Secrets Leak Scan (DevSecOps)"
+        run: python detect_secrets.py
+
       - name: "Setup Python ${{ env.PYTHON_VERSION }}"
         uses: actions/setup-python@v5
         with:
           python-version: ${{ env.PYTHON_VERSION }}
-          cache: "pip"
 
       - name: "Install Dependencies"
         run: |
@@ -55,26 +54,14 @@ jobs:
             seaborn==0.13.2 \
             xgboost==2.1.1
 
-      - name: "Generate & Preprocess Dataset"
-        run: |
-          cd Eksperimen_SML_AdrianSyahAbidin
-          python credit_risk_raw/generate_dataset.py \
-            --output credit_risk_raw/credit_risk_dataset.csv
-          python preprocessing/automate_AdrianSyahAbidin.py \
-            --input credit_risk_raw/credit_risk_dataset.csv \
-            --output-dir preprocessing/credit_risk_preprocessing
-          # Salin dataset bersih ke MLProject
-          cp -r preprocessing/credit_risk_preprocessing \
-                ../Workflow-CI/MLProject/credit_risk_preprocessing
-
       - name: "Run MLflow Project (Training + DagsHub Logging)"
         env:
-          # DevSecOps: semua credential dari GitHub Secrets — TIDAK hardcode
-          DAGSHUB_TOKEN:             ${{ secrets.DAGSHUB_TOKEN }}
-          DAGSHUB_USER_TOKEN:        ${{ secrets.DAGSHUB_TOKEN }}
-          MLFLOW_TRACKING_USERNAME:  ${{ secrets.DAGSHUB_USERNAME }}
-          MLFLOW_TRACKING_PASSWORD:  ${{ secrets.DAGSHUB_TOKEN }}
-          MLFLOW_TRACKING_URI:       "https://dagshub.com/Adrian463588/CreditRiskPrediction.mlflow"
+          # DevSecOps: semua credential dari GitHub Secrets — TIDAK ada hardcoded values
+          DAGSHUB_TOKEN:            ${{ secrets.DAGSHUB_TOKEN }}
+          DAGSHUB_USER_TOKEN:       ${{ secrets.DAGSHUB_TOKEN }}
+          MLFLOW_TRACKING_USERNAME: ${{ secrets.DAGSHUB_USERNAME }}
+          MLFLOW_TRACKING_PASSWORD: ${{ secrets.DAGSHUB_TOKEN }}
+          MLFLOW_TRACKING_URI:      "https://dagshub.com/Adrian463588/CreditRiskPrediction.mlflow"
         run: |
           cd ${{ env.MLPROJECT_DIR }}
           mlflow run . \
@@ -85,29 +72,27 @@ jobs:
 
       - name: "Verify Model Artifact Exists"
         run: |
-          MODEL_PATH="Workflow-CI/MLProject/artifacts/credit-risk-model"
+          MODEL_PATH="${{ env.MLPROJECT_DIR }}/artifacts/credit-risk-model"
           if [ ! -f "${MODEL_PATH}/MLmodel" ]; then
             echo "❌ ERROR: MLmodel file tidak ditemukan di ${MODEL_PATH}"
-            echo "   Pastikan modelling.py memanggil mlflow.sklearn.save_model()"
             exit 1
           fi
           echo "✅ Model artifact valid: $(ls ${MODEL_PATH})"
 
-      - name: "Upload Model Artifact"
+      - name: "Upload Model Artifact to GitHub Actions"
         uses: actions/upload-artifact@v4
         with:
           name: "credit-risk-model-artifact"
-          # Hanya upload folder artifacts/ (bukan mlruns/ yang besar & tidak perlu)
-          path: Workflow-CI/MLProject/artifacts/
+          path: ${{ env.MLPROJECT_DIR }}/artifacts/
           retention-days: 7
 
-  # ══════════════════════════════════════════════════════════════════════════════
-  # JOB 2 ── Build Docker Image (custom Dockerfile, bukan mlflow build-docker)
-  # ══════════════════════════════════════════════════════════════════════════════
+  # ════════════════════════════════════════════════════════════════════════════
+  # JOB 2 — Build & Push Docker Image
+  # ════════════════════════════════════════════════════════════════════════════
   docker-build-push:
     name: "Build & Push Docker Image"
     runs-on: ubuntu-latest
-    needs: train-and-track   # Tunggu Job 1 selesai sukses
+    needs: train-and-track
 
     steps:
       - name: "Checkout Repository"
@@ -117,20 +102,16 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: "credit-risk-model-artifact"
-          # Ekstrak ke lokasi yang tepat agar path di Dockerfile valid
-          path: Workflow-CI/MLProject/artifacts/
+          path: ${{ env.MLPROJECT_DIR }}/artifacts/
 
       - name: "Verify Downloaded Model"
         run: |
-          MODEL_PATH="Workflow-CI/MLProject/artifacts/credit-risk-model"
-          echo "=== Isi direktori artifacts ==="
-          ls -la Workflow-CI/MLProject/artifacts/ || echo "(kosong)"
+          MODEL_PATH="${{ env.MLPROJECT_DIR }}/artifacts/credit-risk-model"
           if [ ! -f "${MODEL_PATH}/MLmodel" ]; then
             echo "❌ ERROR: Model artifact tidak valid atau tidak ditemukan"
-            echo "   Expected: ${MODEL_PATH}/MLmodel"
             exit 1
           fi
-          echo "✅ Model siap untuk Docker build:"
+          echo "✅ Model siap untuk Docker build"
           cat "${MODEL_PATH}/MLmodel"
 
       - name: "Login to Docker Hub"
@@ -140,61 +121,49 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: "Build Docker Image (Custom Dockerfile — python:3.10-slim)"
-        # Menggunakan custom Dockerfile, BUKAN mlflow models build-docker
-        # Alasan: mlflow build-docker menginstall 150+ package tidak perlu
-        # (X11, LLVM, Mesa, xterm, python3.8) → build 30 menit, image ~3 GB
-        # Custom Dockerfile: build ~3-5 menit, image ~500 MB
+        # Menggunakan custom Dockerfile multi-stage — BUKAN mlflow models build-docker
+        # Alasan: mlflow build-docker default image >3 GB & build >30 menit
+        # Custom slim: ~500 MB & build ~3-5 menit
         run: |
           docker build \
-            --file Workflow-CI/MLProject/Dockerfile \
+            --file ${{ env.MLPROJECT_DIR }}/Dockerfile \
             --tag "${{ env.DOCKER_IMAGE_NAME }}:latest" \
             --tag "${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}" \
             --label "git-commit=${{ github.sha }}" \
             --label "build-date=$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-            --label "repo=${{ github.repository }}" \
-            Workflow-CI/MLProject
+            ${{ env.MLPROJECT_DIR }}
 
       - name: "Smoke Test Docker Image"
-        # Verifikasi image bisa berjalan tanpa error
         run: |
-          docker run --rm \
-            "${{ env.DOCKER_IMAGE_NAME }}:latest" \
+          docker run --rm "${{ env.DOCKER_IMAGE_NAME }}:latest" \
             python -c "
           import mlflow.pyfunc
           model = mlflow.pyfunc.load_model('/app/model')
-          print('✅ Model loaded successfully')
-          print(f'   Model type: {type(model)}')
+          print('✅ Model loaded successfully — type:', type(model))
           "
 
       - name: "Tag & Push Docker Image to Docker Hub"
         run: |
           IMAGE_TAG="${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}"
-
-          docker tag "${{ env.DOCKER_IMAGE_NAME }}:latest"        "${IMAGE_TAG}:latest"
+          docker tag "${{ env.DOCKER_IMAGE_NAME }}:latest"            "${IMAGE_TAG}:latest"
           docker tag "${{ env.DOCKER_IMAGE_NAME }}:${{ github.sha }}" "${IMAGE_TAG}:${{ github.sha }}"
-
           docker push "${IMAGE_TAG}:latest"
           docker push "${IMAGE_TAG}:${{ github.sha }}"
+          echo "✅ Pushed: ${IMAGE_TAG}:latest"
 
-          echo "✅ Docker image pushed:"
-          echo "   ${IMAGE_TAG}:latest"
-          echo "   ${IMAGE_TAG}:${{ github.sha }}"
-          echo "DOCKER_IMAGE=${IMAGE_TAG}:latest" >> $GITHUB_ENV
-
-      - name: "Create Docker Hub Reference File"
+      - name: "Update Docker Hub Reference File"
         run: |
-          mkdir -p Workflow-CI
-          cat > Workflow-CI/docker_hub_reference.txt << EOF
-          Docker Image  : ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest
-          Pull Command  : docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest
-          Run Command   : docker run -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest
-          Built at      : $(date -u)
-          Git Commit    : ${{ github.sha }}
+          cat > ${{ env.MLPROJECT_DIR }}/docker_hub_reference.txt <<EOF
+          Docker Hub Repository : https://hub.docker.com/repository/docker/${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}/general
+          Docker Image Name     : ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest
+          Pull Command          : docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest
+          Run Command           : docker run -p 8080:8080 ${{ secrets.DOCKERHUB_USERNAME }}/${{ env.DOCKER_IMAGE_NAME }}:latest
+          Built at              : $(date -u)
+          Git Commit            : ${{ github.sha }}
           EOF
-          cat Workflow-CI/docker_hub_reference.txt
 
-      - name: "Upload Docker Reference"
+      - name: "Upload Docker Reference as Artifact"
         uses: actions/upload-artifact@v4
         with:
           name: "docker-hub-reference"
-          path: Workflow-CI/docker_hub_reference.txt
+          path: ${{ env.MLPROJECT_DIR }}/docker_hub_reference.txt

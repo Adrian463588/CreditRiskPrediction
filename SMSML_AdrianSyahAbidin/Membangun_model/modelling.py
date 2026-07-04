@@ -5,10 +5,15 @@ Pelatihan model dasar Credit Risk Prediction menggunakan MLflow autologging.
 Menggunakan RandomForestClassifier tanpa hyperparameter tuning manual.
 
 Penggunaan:
-    python modelling.py
+    1. Jalankan MLflow server terlebih dahulu:
+           mlflow server --host 127.0.0.1 --port 5000
+    2. Kemudian jalankan script ini:
+           python modelling.py
+    3. Buka MLflow UI di: http://127.0.0.1:5000
 
 Catatan:
     - Script ini menggunakan MLflow autolog (Kriteria 2 Basic).
+    - Tracking disimpan secara lokal via http://127.0.0.1:5000.
     - Untuk tracking ke DagsHub dengan tuning, gunakan modelling_tuning.py.
 """
 
@@ -34,12 +39,15 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# ─── MLflow Tracking URI (lokal) ─────────────────────────────────────────────
+MLFLOW_TRACKING_URI = "http://127.0.0.1:5000"
+
 # ─── Konfigurasi ─────────────────────────────────────────────────────────────
 DATA_DIR    = "credit_risk_preprocessing"
 TRAIN_FILE  = os.path.join(DATA_DIR, "credit_risk_train.csv")
 TEST_FILE   = os.path.join(DATA_DIR, "credit_risk_test.csv")
 TARGET_COL  = "loan_status"
-EXPERIMENT  = "credit-risk-basic"
+EXPERIMENT  = "credit-risk-modelling"
 
 
 def load_data(train_path: str, test_path: str):
@@ -78,6 +86,8 @@ def train() -> None:
 
     X_train, X_test, y_train, y_test = load_data(TRAIN_FILE, TEST_FILE)
 
+    # Set tracking URI ke server lokal
+    mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
     mlflow.set_experiment(EXPERIMENT)
     mlflow.sklearn.autolog(log_models=True, log_datasets=False)
 
@@ -104,7 +114,7 @@ def train() -> None:
         )
         logger.info("\n%s", report)
 
-    logger.info("✅ Training selesai. Buka MLflow UI: mlflow ui")
+    logger.info("✅ Training selesai. Buka MLflow UI: %s", MLFLOW_TRACKING_URI)
 
 
 if __name__ == "__main__":

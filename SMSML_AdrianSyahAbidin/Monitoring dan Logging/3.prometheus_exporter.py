@@ -224,6 +224,16 @@ def predict_loan_default(application: LoanApplication) -> PredictionResponse:
     Prediksi risiko gagal bayar untuk pengajuan pinjaman.
     Mengupdate metrik Prometheus secara real-time.
     """
+    # Simulasi latency tinggi jika usia = 99
+    if application.person_age == 99:
+        logger.info("Simulation: Injecting 3 seconds latency...")
+        time.sleep(3.0)
+
+    # Simulasi internal server error jika usia = 88
+    if application.person_age == 88:
+        logger.info("Simulation: Injecting Internal Server Error...")
+        raise ValueError("Simulated Internal Server Error for monitoring check")
+
     features = np.array([[
         application.person_income,
         application.person_age,

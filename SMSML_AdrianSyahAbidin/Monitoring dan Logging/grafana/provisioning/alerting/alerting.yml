@@ -1,0 +1,176 @@
+apiVersion: 1
+
+# ─── Contact Points ────────────────────────────────────────────────────────────
+contactPoints:
+  - orgId: 1
+    name: Discord Webhook
+    receivers:
+      - uid: discord_webhook_uid
+        type: discord
+        settings:
+          url: https://discord.com/api/webhooks/1522975913820684349/3An_v9_ZJWlhis72CEYfTDK0jMEZW4VKjXEGaAy44v89z-xouQjwZ3O0Oo4ZkrNBNWWK
+        disableResolveMessage: false
+
+# ─── Notification Policies ─────────────────────────────────────────────────────
+policies:
+  - orgId: 1
+    receiver: Discord Webhook
+    group_by:
+      - alertname
+    group_wait: 5s
+    group_interval: 5s
+    repeat_interval: 1h
+
+# ─── Alert Rules ────────────────────────────────────────────────────────────────
+groups:
+  - orgId: 1
+    name: credit-risk-alerts
+    folder: Credit Risk MLOps
+    interval: 1m
+    rules:
+      # Alert 1 (Business): Loan Approval Rate Critically Low
+      - uid: alert_loan_approval_rate
+        title: LoanApprovalRateCriticallyLow
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: loan_approval_rate
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+          - refId: C
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params: [0.10]
+                    type: lt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    type: last
+                  type: query
+              datasource:
+                type: __expr__
+                uid: __expr__
+              expression: A
+              refId: C
+              type: threshold
+        noDataState: NoData
+        execErrState: Alerting
+        for: 30s
+        labels:
+          severity: critical
+          team: mlops
+          category: business
+        annotations:
+          summary: "Loan approval rate sangat rendah"
+          description: "Loan approval rate turun di bawah 10% — kemungkinan ada masalah pada model atau data input. Nilai saat ini: {{ $values.A.Value | printf \"%.2f\" }}"
+
+      # Alert 2 (System): High API Latency
+      - uid: alert_high_latency
+        title: HighAPILatency
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: histogram_quantile(0.95, rate(api_latency_seconds_bucket[5m]))
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+          - refId: C
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params: [2.0]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    type: last
+                  type: query
+              datasource:
+                type: __expr__
+                uid: __expr__
+              expression: A
+              refId: C
+              type: threshold
+        noDataState: NoData
+        execErrState: Alerting
+        for: 30s
+        labels:
+          severity: warning
+          team: mlops
+          category: system
+        annotations:
+          summary: "API latency terlalu tinggi"
+          description: "Latency P95 endpoint /predict melebihi 2 detik. Nilai saat ini: {{ $values.A.Value | printf \"%.2f\" }}s"
+
+      # Alert 3 (System/Data): High Error Rate
+      - uid: alert_high_error_rate
+        title: HighErrorRate
+        condition: C
+        data:
+          - refId: A
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: prometheus
+            model:
+              expr: rate(http_error_total[5m]) / (rate(api_request_total[5m]) + 0.001)
+              intervalMs: 1000
+              maxDataPoints: 43200
+              refId: A
+          - refId: C
+            relativeTimeRange:
+              from: 300
+              to: 0
+            datasourceUid: __expr__
+            model:
+              conditions:
+                - evaluator:
+                    params: [0.05]
+                    type: gt
+                  operator:
+                    type: and
+                  query:
+                    params: [A]
+                  reducer:
+                    type: last
+                  type: query
+              datasource:
+                type: __expr__
+                uid: __expr__
+              expression: A
+              refId: C
+              type: threshold
+        noDataState: NoData
+        execErrState: Alerting
+        for: 30s
+        labels:
+          severity: critical
+          team: mlops
+          category: system
+        annotations:
+          summary: "Error rate HTTP 5xx melonjak tajam"
+          description: "Tingkat error HTTP 5xx melebihi 5% dari total request. Nilai saat ini: {{ $values.A.Value | printf \"%.2f\" }}"

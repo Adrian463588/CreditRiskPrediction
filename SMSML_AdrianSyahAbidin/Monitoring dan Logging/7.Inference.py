@@ -181,6 +181,32 @@ def run_crisis_simulation(n_requests: int, interval: float) -> None:
     logger.info("SELESAI | Final Approval Rate: %.1f%%", approved / (approved + rejected + 1e-9) * 100)
 
 
+def run_latency_simulation(n_requests: int, interval: float) -> None:
+    """Simulasi traffic dengan latensi tinggi (usia = 99)."""
+    logger.info("═" * 60)
+    logger.info("🐌 MODE LATENCY: Menghasilkan latensi > 2 detik (usia = 99)")
+    logger.info("Jumlah request: %d | Interval: %.2fs", n_requests, interval)
+    logger.info("═" * 60)
+    for i in range(1, n_requests + 1):
+        applicant = NORMAL_APPLICANTS[0].copy()
+        applicant["person_age"] = 99
+        send_prediction(applicant)
+        time.sleep(interval)
+
+
+def run_error_simulation(n_requests: int, interval: float) -> None:
+    """Simulasi traffic dengan error rate tinggi (usia = 88)."""
+    logger.info("═" * 60)
+    logger.info("🔴 MODE ERROR: Menghasilkan HTTP 500 Errors (usia = 88)")
+    logger.info("Jumlah request: %d | Interval: %.2fs", n_requests, interval)
+    logger.info("═" * 60)
+    for i in range(1, n_requests + 1):
+        applicant = NORMAL_APPLICANTS[0].copy()
+        applicant["person_age"] = 88
+        send_prediction(applicant)
+        time.sleep(interval)
+
+
 def run_mixed_simulation(n_requests: int, interval: float) -> None:
     """Simulasi campuran: normal lalu transisi ke krisis untuk demo alerting."""
     normal_count = n_requests // 2
@@ -198,9 +224,9 @@ def run_mixed_simulation(n_requests: int, interval: float) -> None:
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Inference traffic simulator untuk Credit Risk API")
     parser.add_argument(
-        "--mode", choices=["normal", "crisis", "mixed"],
+        "--mode", choices=["normal", "crisis", "mixed", "latency", "error"],
         default="normal",
-        help="Mode simulasi: normal, crisis, atau mixed (default: normal)"
+        help="Mode simulasi: normal, crisis, mixed, latency, atau error"
     )
     parser.add_argument("--requests", type=int, default=200, help="Jumlah total request (default: 200)")
     parser.add_argument("--interval", type=float, default=0.1, help="Interval antar request dalam detik (default: 0.1)")
@@ -218,6 +244,8 @@ if __name__ == "__main__":
         "normal": run_normal_simulation,
         "crisis": run_crisis_simulation,
         "mixed":  run_mixed_simulation,
+        "latency": run_latency_simulation,
+        "error":   run_error_simulation,
     }
 
     simulators[args.mode](n_requests=args.requests, interval=args.interval)

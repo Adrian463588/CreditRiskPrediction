@@ -30,16 +30,16 @@ jobs:
 
       - name: "Generate Raw Dataset"
         run: |
-          python credit_risk_raw/generate_dataset.py \
-            --output credit_risk_raw/credit_risk_dataset.csv \
+          python Eksperimen_SML_AdrianSyahAbidin/credit_risk_raw/generate_dataset.py \
+            --output Eksperimen_SML_AdrianSyahAbidin/credit_risk_raw/credit_risk_dataset.csv \
             --n-samples 32581
-          echo "✅ Raw dataset generated: $(wc -l < credit_risk_raw/credit_risk_dataset.csv) rows"
+          echo "✅ Raw dataset generated: $(wc -l < Eksperimen_SML_AdrianSyahAbidin/credit_risk_raw/credit_risk_dataset.csv) rows"
 
       - name: "Run Preprocessing Automation"
         run: |
-          python preprocessing/automate_AdrianSyahAbidin.py \
-            --input credit_risk_raw/credit_risk_dataset.csv \
-            --output-dir preprocessing/credit_risk_preprocessing
+          python Eksperimen_SML_AdrianSyahAbidin/preprocessing/automate_AdrianSyahAbidin.py \
+            --input Eksperimen_SML_AdrianSyahAbidin/credit_risk_raw/credit_risk_dataset.csv \
+            --output-dir Eksperimen_SML_AdrianSyahAbidin/preprocessing/credit_risk_preprocessing
           echo "✅ Preprocessing complete"
 
       - name: "Validate Output Files"
@@ -47,7 +47,7 @@ jobs:
           python - <<'EOF'
           import os, pandas as pd
 
-          output_dir = "preprocessing/credit_risk_preprocessing"
+          output_dir = "Eksperimen_SML_AdrianSyahAbidin/preprocessing/credit_risk_preprocessing"
           for fname in ["credit_risk_train.csv", "credit_risk_test.csv"]:
               fpath = os.path.join(output_dir, fname)
               assert os.path.exists(fpath), f"FAIL: {fpath} not found"
@@ -61,14 +61,14 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: "credit-risk-preprocessed-${{ github.run_number }}"
-          path: preprocessing/credit_risk_preprocessing/
+          path: Eksperimen_SML_AdrianSyahAbidin/preprocessing/credit_risk_preprocessing/
           retention-days: 30
 
       - name: "Commit Preprocessed Data back to Repo"
         run: |
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Actions"
-          git add preprocessing/credit_risk_preprocessing/ || true
+          git add Eksperimen_SML_AdrianSyahAbidin/preprocessing/credit_risk_preprocessing/ || true
           git diff --cached --quiet || git commit -m "ci: update preprocessed credit risk dataset [skip ci]"
           git push || echo "Nothing to push"
         env:

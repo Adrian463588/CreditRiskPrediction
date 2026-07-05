@@ -18,7 +18,7 @@ on:
 # ─── Global Environment Variables ──────────────────────────────────────────────
 env:
   DOCKER_IMAGE_NAME: credit-risk-model
-  MLPROJECT_DIR: MLProject         # Root-relative path (standalone repo)
+  MLPROJECT_DIR: Workflow-CI/MLProject         # Root-relative path (standalone repo)
   PYTHON_VERSION: "3.10"
 
 jobs:
